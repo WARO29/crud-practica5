@@ -15,3 +15,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [curd_controller::class, "index"])->name("crud.index");
+
+//Ruta para añadir un nuevo producto.
+Route::post('/registrar-producto', [curd_controller::class, "create"])->name("crud.create");
