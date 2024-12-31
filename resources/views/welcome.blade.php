@@ -12,24 +12,39 @@
     <div class="container">
         <h1 class="text-center p-5">Crud con Laravel.</h1>
 
-        @if(@session("Correcto"))
+        @if(session("Correcto")) <!-- se verifica si existe id Correcto dentro de curd_controller -->
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{session("Correcto")}}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
-        @if(@session("Error"))
+        @if(session("Error")) <!-- se verifica si existe id Error dentro de curd_controller -->
         <div class="alert alert-danger alert-dismissible fade show">
-            {{session("Error")}}
+            {{session("Error")}} 
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         @endif
 
+        @if(session("not-modificado")) <!-- se verifica si existe id Error dentro de curd_controller -->
+        <div class="alert alert-success alert-dismissible fade show">
+            {{session("not-modificado")}} 
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
+        <script>
+            var res = function(){
+                let not= confirm("¿Estas seguro de eliminar?");
+                return not;
+            }
+        </script>
+
         <div class="row">
             <div class="col-6">
                 <form method="POST" action="{{route("crud.create")}}"> <!-- el formulario me debe de llevar a la ruta indicada -->
-                    @csrf <!-- es necesario y obligatorio para los metodos POST ya que modifican datos -->
+                    @csrf <!-- es necesario y obligatorio para los metodos POST ya que modifican datos para evitar los
+                    ataque de csrf. -->
                     <div class="mb-3">
                         <h2 class="text-center mt-3 mb-3">Registro de producto</h2>
                         <label for="exampleInputEmail1" class="form-label">Codigo del producto</label>
@@ -54,15 +69,15 @@
                 </form>
             </div>
             <div class="col-6">
-                <table class="table table-striped table-bordered table-hover">
+                <table class="table table-striped table-bordered table-hover mt-4">
                     <thead class="table-primary">
-                      <tr>
+                    <tr>
                         <th scope="col">CODIGO</th>
                         <th scope="col">NOMBRE</th>
                         <th scope="col">PRECIO</th>
                         <th scope="col">CANTIDAD</th>
                         <th>Acciones</th>
-                      </tr>
+                    </tr>
                     </thead>
                     <tbody>
                         @foreach($datos as $key)
@@ -72,11 +87,13 @@
                             <td><b>$ </b>{{$key->precio}}</td>
                             <td>{{$key->cantidad}}</td>
                             <td>
-                                <a href="" data-bs-toggle="modal" data-bs-target="#exampleModal"class="btn btn-warning btn-sm"><i class="fa-solid fa-pen-to-square"></i></a>
-                                <a href="" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i></a>
+                                <a href="" data-bs-toggle="modal" data-bs-target="#ModalEditar{{$key->id_producto}}"class="btn btn-warning btn-sm"><i class="fa-solid fa-pen-to-square"></i></a>
+                                <!-- se coloca en #ModalEditar el  para que se puedan cargar los datos -->
+                                <!-- en el formulario de manera correcta -->
+                                <a href="{{route("crud.delete", $key->id_producto)}}" onclick="return res()" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i></a>
                             </td>
                         <!-- Modal -->
-                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="ModalEditar{{$key->id_producto}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -84,28 +101,29 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form>
+                                        <form method="POST" action="{{route("crud.update")}}">
+                                            @csrf
                                             <div class="mb-3">
-                                              <label for="exampleInputEmail1" class="form-label">Codigo del producto</label>
-                                              <input type="text" name="txtcodigo" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                                                <label for="exampleInputEmail1" class="form-label">Codigo del producto</label>
+                                                <input type="text" name="txtcodigo" value="{{$key->id_producto}}" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="exampleInputEmail1" class="form-label">Nombre del producto.</label>
-                                                <input type="text" name="txtnombre" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                                              </div>
-                                              <div class="mb-3">
+                                                <input type="text" name="txtnombre" value="{{$key->nombre}}" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                                            </div>
+                                            <div class="mb-3">
                                                 <label for="exampleInputEmail1" class="form-label">Precio del producto</label>
-                                                <input type="text" name="txtprecio" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                                              </div>
-                                              <div class="mb-3">
+                                                <input type="text" name="txtprecio" value="{{$key->precio}}" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                                            </div>
+                                            <div class="mb-3">
                                                 <label for="exampleInputEmail1" class="form-label">Cantidad del producto</label>
-                                                <input type="text" name="txtcantidad" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                                              </div>
+                                                <input type="Number" name="txtcantidad" value="{{$key->cantidad}}" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                                            </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                                 <button type="" class="btn btn-primary">Modificar</button>
                                             </div>
-                                          </form>
+                                        </form>
                                     </div>
                                 </div>
                                 </div>

@@ -18,3 +18,10 @@ Route::get('/', [curd_controller::class, "index"])->name("crud.index");
 
 //Ruta para añadir un nuevo producto.
 Route::post('/registrar-producto', [curd_controller::class, "create"])->name("crud.create");
+
+//Ruta para modificar un producto.
+Route::post('/modificar-producto', [curd_controller::class, "update"])->name("crud.update");
+
+//Ruta para eliminar un producto.
+Route::get('/eliminar-producto-{id}', [curd_controller::class, "delete"])->name("crud.delete"); 
+//cuando envie una variable va hacer de tipo get.
